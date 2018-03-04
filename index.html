@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Get Tune Drake to the gig!</title>
+    <style>
+    	* { padding: 0; margin: 0; }
+    	canvas { background: #eee; display: block; margin: 0 auto; }
+    </style>
+</head>
+<body>
+
+<canvas id="myCanvas" width="800" height="600"></canvas>
+
+<script>
+	let canvas = document.getElementById('myCanvas');
+    let ctx = canvas.getContext('2d');
+
+    let sprites = {};
+
+    let load = function() {
+        sprites.background = new Image();
+        sprites.background.src = 'images/Grass.jpg';
+        sprites.stageFloor = new Image();
+        sprites.stageFloor.src = 'images/StageFloor.jpg';
+        sprites.tuneDrake = new Image();
+        sprites.tuneDrake.src = 'images/TuneDrake.png';
+        sprites.cat = new Image();
+        sprites.cat.src = 'images/cat.png';
+        sprites.tree = new Image();
+        sprites.tree.src = 'images/Tree.png';
+        sprites.wall_800 = new Image();
+        sprites.wall_800.src = 'images/Wall_800.jpg';
+        sprites.wall_600 = new Image();
+        sprites.wall_600.src = 'images/Wall_600.jpg';
+    };
+
+    let ballX = canvas.width-100;
+    let ballY = canvas.height/2;
+    let dx = -5;
+    let dy = 5;
+
+    let upPressed = false;
+    let downPressed = false;
+
+    let paddleHeight = 70;
+    let paddleWidth = 36;
+    let paddleX = 730;
+    let paddleY = (canvas.height - paddleHeight)/2;
+
+    let stageX = Math.floor(Math.random() * 300)+25;
+    let stageY = Math.floor(Math.random() * 450)+35;
+    let stageWidth = 20;
+    let stageHeight = 40;
+
+    let score = 0;
+
+    function drawScore() {
+        ctx.fillStyle = "#000000";
+        ctx.font = "24px Trebuchet MS";
+        ctx.fillText("Number of pints: " + score, 300, 40);
+    }
+
+    function drawStageSign() {
+        ctx.fillStyle = "#000000";
+        ctx.fill();
+        ctx.rect(stageX-10, stageY-25, 40, 20);
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "12px Trebuchet MS";
+        ctx.fillText("Stage", stageX-5, stageY-10);
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(sprites.background, 0, 0);
+        ctx.drawImage(sprites.stageFloor, stageX, stageY);
+        ctx.drawImage(sprites.tuneDrake, ballX, ballY);
+        ctx.drawImage(sprites.wall_600, 0, 0);
+        ctx.drawImage(sprites.wall_800, 0, 0);
+        ctx.drawImage(sprites.wall_800, 0, canvas.height-10);
+        ctx.drawImage(sprites.tree, 780, 20);
+        ctx.drawImage(sprites.tree, 750, 100);
+        ctx.drawImage(sprites.tree, 770, 200);
+        ctx.drawImage(sprites.tree, 755, 280);
+        ctx.drawImage(sprites.tree, 780, 420);
+        ctx.drawImage(sprites.tree, 760, 500);
+        ctx.drawImage(sprites.tree, 250, 70);
+        ctx.drawImage(sprites.tree, 125, 500);
+        ctx.drawImage(sprites.tree, 525, 80);
+        ctx.drawImage(sprites.tree, 475, 450);
+        ctx.drawImage(sprites.cat, paddleX, paddleY);
+        drawScore();
+        drawStageSign();
+        ballX += dx;
+        ballY += dy;
+        // Check for the stage.
+        if (ballY > stageY - 5 && ballY < stageY + 25 && ballX > stageX && ballX < stageX + 15) {
+            ballX = stageX;
+            ballY = stageY;
+            score++;
+            alert("The Tune Drake plays a tune and you get a pint!\n\nUh oh, he's wandering off again. Stop him!");
+            ballX = stageX - 20;
+            ballY = stageY + stageHeight/2;
+            dx = (Math.abs(dx) * -1) + 1;
+        }
+        // Check for trees.
+        if (ballY > 70 && ballY < 135 && ballX > 250 && ballX < 285) {
+            dy = -dy;
+        }
+        if (ballY > 500 && ballY < 565 && ballX > 125 && ballX < 190) {
+            dy = -dy;
+        }
+        if (ballY > 30 && ballY < 65 && ballX > 500 && ballX < 550) {
+            dy = -dy;
+        }
+        if (ballY > 450 && ballY < 485 && ballX > 470 && ballX < 480) {
+            dy = -dy;
+        }
+        // Check top and bottom walls.
+        if (ballY + dy > canvas.height - 30 || ballY + dy < 0) {
+            dy = -dy;
+        }
+        // Check left wall.
+        if (ballX + dx < 5) {
+            dx = -dx;
+        } // Check right and paddle.
+        else if (ballX + dx > paddleX-15) {
+            if (ballY > paddleY-35 && ballY < paddleY + 75) {
+                dx = -dx;
+            }
+            else {
+                if (ballX > canvas.width-5) {
+                alert("The Tune Drake got lost in the woods.\n\nWhile you get him, someone drinks your pints!");
+                setTimeout(function() {
+                    document.location.reload(true);
+                    }, 200);
+                }
+            }
+        }
+        // Move paddle.
+        if(upPressed && paddleY > 10) {
+            paddleY -= 7;
+        }
+        else if(downPressed && paddleY < canvas.height - 80) {
+            paddleY += 7;
+        }
+        requestAnimationFrame(draw);
+    }
+    document.addEventListener('keydown', keyDownHandler, false);
+    document.addEventListener('keyup', keyUpHandler, false);
+    function keyDownHandler(e) {
+        if(e.keyCode === 38) {
+            upPressed = true;
+        }
+        else if(e.keyCode === 40) {
+            downPressed = true;
+        }
+    }
+
+    function keyUpHandler(e) {
+        if(e.keyCode === 38) {
+            upPressed = false;
+        }
+        else if(e.keyCode === 40) {
+            downPressed = false;
+        }
+}
+load();
+draw();
+</script>
+
+<center>
+
+<h1><img src='images/TuneDrake_Big.png'>Help the Tune Drake get to the stage!</h1>
+<p>There's a party going on in the old rectangular amphitheater in the woods. The Tune Drake is supposed to play music, 
+    but he gets distracted pretty easily and starts wandering around, thinking about melodies. 
+    You've been hired to gently guide the Tune Drake back to the stage, in return for pints of delicious catnip juice!</p>
+<p><br/></p>
+<p>Use the up and down arrows on your keyboard to move yourself and send the Tune Drake back toward the stage. Good luck!</p>
+<p><br/></p>
+<p>Game created by <a href="http://www.harrymiller.net/">Harry Miller</a>, 
+    also known as <a href="http://tunedrake.com/">the Tune Drake</a>.</p>
+</center>
+
+</body>
+</html>
